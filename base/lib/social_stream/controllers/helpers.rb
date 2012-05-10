@@ -132,7 +132,7 @@ module SocialStream
           return subject_class.find_by_slug! id
         end
 
-        nil
+        current_subject
       end
     end
   end
