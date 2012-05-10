@@ -1,21 +1,19 @@
 class DocumentsController < ApplicationController
-  include ActionView::Helpers::SanitizeHelper
   include SocialStream::Controllers::Objects
-
-  belongs_to_subjects :optional => true
 
   before_filter :profile_subject!, :only => :index
 
-  PER_PAGE=20
-  
   def index
-    super do |format|
-      format.json { render :json => collection.map{|a| a.activity_objects.first.document} }
-      if params[:no_layout].present?
-        format.html { render :action => :index, :layout => false }      
-      else  
-        format.html { render :action => :index }
-      end
+    respond_to do |format|
+      format.html {
+        collection
+
+        if params[:no_layout].present?
+          render :layout => false
+        end
+      }
+
+      format.json { render :json => collection }
     end
   end
   
@@ -64,31 +62,9 @@ class DocumentsController < ApplicationController
 
   private
 
-  def collection
-    @activities = profile_subject.wall(:profile,
-                                       :for => current_subject,
-                                       :object_type => Array(self.class.index_object_type))
-    if params[:q].present? 
-      @activities = @activities.joins(:activity_objects).where('activity_objects.title LIKE ? OR activity_objects.description LIKE ?', get_search_query, get_search_query)
-    end
-    @activities = @activities.page(params[:page]).per(PER_PAGE)
-  end
-
   class << self
     def index_object_type
       [ :Audio, :Video, :Picture, :Document ]
     end
-  end
-  
-  def get_search_query
-    search_query = ""
-    param = strip_tags(params[:q]) || ""
-    bare_query = param unless bare_query.html_safe?
-    search_query_words = bare_query.strip.split
-    search_query_words.each_index do |i|
-      search_query+= search_query_words[i] + " " if i < (search_query_words.size - 1)
-      search_query+= "%" + search_query_words[i] + "% " if i == (search_query_words.size - 1)
-    end
-    return search_query.strip
   end
 end
