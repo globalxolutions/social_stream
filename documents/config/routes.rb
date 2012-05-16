@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   resources :pictures
   resources :audios
   resources :videos
+  resources :swfs
 
   resources :documents do
     get "search",   :on => :collection
@@ -14,6 +15,7 @@ Rails.application.routes.draw do
       resources :pictures
       resources :audios
       resources :videos
+      resources :swfs
 
       resources :documents do
         get "search",   :on => :collection

@@ -32,6 +32,10 @@ class Document < ActiveRecord::Base
       if(doc.file_content_type.nil?)
         return doc
       end
+
+      if !(doc.file_content_type =~ /^.*shockwave-flash.*/).nil?
+        return Swf.new *args
+      end
       
       if !(doc.file_content_type =~ /^image.*/).nil?
         return Picture.new *args
