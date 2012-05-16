@@ -7,6 +7,7 @@ module SocialStream
             indexes activity_object.title,       :as => :title
             indexes activity_object.description, :as => :description
             indexes activity_object.tags.name,   :as => :tags
+            indexes activity_object.author.name, :as => :author
 
             has created_at
             has activity_object.author_actions(:actor_id), :as => :author_id
