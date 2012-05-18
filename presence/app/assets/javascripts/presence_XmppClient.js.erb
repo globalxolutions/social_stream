@@ -69,6 +69,7 @@ PRESENCE.XMPPClient = (function(P,$,undefined){
 	  this.affiliation = "none";
 	  this.role = "none";
 	  this.nick = getBaseNickFromUserName();
+		this.lastMessageId = null;
 	}
 	
 
@@ -79,7 +80,9 @@ PRESENCE.XMPPClient = (function(P,$,undefined){
 	iqStanzaID['videochatRequestCancel'] = "videochatRequestCancelID";
 	
 	
-	var init = function(){  }
+	var init = function(){  
+	 getConnection();
+	}
 	
 	
 	////////////////////
@@ -117,7 +120,7 @@ PRESENCE.XMPPClient = (function(P,$,undefined){
 	
 	var connectToServerWithCookie = function(user_jid, cookie){ 
 	    try {
-	      strophe_connection = new Strophe.Connection(BOSH_SERVICE);
+	      strophe_connection = getConnection();
 	      strophe_connection.connect(user_jid, cookie, onConnect);
 	    } catch (err) {
 	      //"Handle errors"
@@ -140,7 +143,7 @@ PRESENCE.XMPPClient = (function(P,$,undefined){
 	    
 	    try {
 	        //Connect actual user to the chat
-	        strophe_connection = new Strophe.Connection(BOSH_SERVICE);
+	        strophe_connection = getConnection();
 	        strophe_connection.connect(user_jid, password, onConnect);
 	    } catch (err) {
 	        //"Handle errors"
@@ -306,13 +309,13 @@ PRESENCE.XMPPClient = (function(P,$,undefined){
 	  if(isStropheConnected()){
 	    
 	    //Leave from rooms before disconnect
-	//    if(roomsInfo){
-	//      for(var roomName in roomsInfo){
-	//        if(roomsInfo[roomName].joined){
-	//          leaveRoom(roomName);
-	//        }
-	//      }
-	//    }
+	    if(roomsInfo){
+	      for(var roomName in roomsInfo){
+	        if(roomsInfo[roomName].joined){
+	          leaveRoom(roomName);
+	        }
+	      }
+	    }
 	    
 	    strophe_connection.send($pres({type: "unavailable"}).tree()); 
 	    strophe_connection.disconnect();
@@ -358,7 +361,6 @@ PRESENCE.XMPPClient = (function(P,$,undefined){
 	
 	//Chat messages handler
 	var onMessage = function(msg) {
-
 	    var from = msg.getAttribute('from');
 	    var type = msg.getAttribute('type');
 	    var elems = msg.getElementsByTagName('body');
@@ -523,8 +525,14 @@ PRESENCE.XMPPClient = (function(P,$,undefined){
 	    handleGetVideochatIQStanza(jid,iqID,iq,slug);
 	    return true;
 	  }
-	  
-	  //Case 3: Default behaviour
+		
+		//Case 3: Request game
+		if(iqID==PRESENCE.GAME.COMUNICATION.getIQStanzaID()['gameRequest']){
+      //Do nothing
+      return true;
+    }
+		
+	  //Case 4: Default behaviour
 	  sendIQEmpty(jid,iqID);
 	
 	  return true;
@@ -630,7 +638,7 @@ PRESENCE.XMPPClient = (function(P,$,undefined){
 	    var response = queryElement.getElementsByTagName('response');
 	    
 	    if(response.length == 1){
-	      receiveVideoChatCancelationFromUser(slug);
+	      PRESENCE.VIDEOCHAT.receiveVideoChatCancelationFromUser(slug);
 	      return true;
 	    }
 	  }
@@ -887,17 +895,27 @@ PRESENCE.XMPPClient = (function(P,$,undefined){
 	///////
 	
 	//MUC Messages
-	var onRoomMessage = function(msg) {
+	var onRoomMessage = function(roomMsg) {
+		
 	  //from=roomSlug@conference.domain/from_slug
-	  var from = msg.getAttribute('from');
-	  var type = msg.getAttribute('type');
-	  var elems = msg.getElementsByTagName('body');
+	  var from = roomMsg.getAttribute('from');
+	  var type = roomMsg.getAttribute('type');
+	  var elems = roomMsg.getElementsByTagName('body');
 	  
 	  if (type == "groupchat" && elems.length > 0) {
 	    var body = elems[0];
 	    var user_nick = getNickFromChatRoomJid(from)
 	    var msg = Strophe.getText(body);
-	    PRESENCE.UIMANAGER.afterReceivedGroupChatMessage(from,msg)
+			
+			//Prevent repeated messages
+			var roomSlug = getSlugFromJid(from);
+			var id = roomMsg.getAttribute('id');
+			if((roomSlug in roomsInfo)&&(roomsInfo[roomSlug].lastMessageId != null)&&(roomsInfo[roomSlug].lastMessageId == id)){
+				return true;
+			}
+			roomsInfo[roomSlug].lastMessageId = id;
+			
+			PRESENCE.UIMANAGER.afterReceivedGroupChatMessage(from,msg)
 	  }
 	  return true;
 	}
@@ -1114,6 +1132,9 @@ PRESENCE.XMPPClient = (function(P,$,undefined){
 	}
 	
 	var getConnection = function(){
+		if(! strophe_connection){
+			strophe_connection = new Strophe.Connection(BOSH_SERVICE);
+		}
 		return strophe_connection;
 	}
 	
