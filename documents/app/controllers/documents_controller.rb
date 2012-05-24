@@ -64,7 +64,7 @@ class DocumentsController < ApplicationController
 
   class << self
     def index_object_type
-      [ :Audio, :Video, :Picture, :Document ]
+      [ :Audio, :Video, :Picture, :Swf, :Document ]
     end
   end
 end
