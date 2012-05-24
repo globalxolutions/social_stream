@@ -1,11 +1,7 @@
 class Swf < Document  
   has_attached_file :file, 
                     :url => '/:class/:id.:extension',
-                    :path => ':rails_root/documents/:class/:id_partition/:style',
-                    :styles => {:webma => {:format => 'webm'}
-                    },:processors => [:ffmpeg]
-  
-  process_in_background :file    
+                    :path => ':rails_root/documents/:class/:id_partition/:style'
   
   define_index do
     activity_object_index
