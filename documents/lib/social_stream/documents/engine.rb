@@ -52,6 +52,9 @@ module SocialStream
         Mime::Type.register "video/x-flv", :flv
         Mime::Type.register "video/webm", :webm
         Mime::Type.register "video/mp4", :mp4
+
+        # SWF Files
+        Mime::Type.register "application/x-shockwave-flash", :swf
       end
 
       initializer "social_stream-documents.views.toolbar" do
