@@ -11,8 +11,9 @@ namespace :db do
 
       SocialStream::Population::ActivityObject.new Document do |d|
         d.file  = File.open(doc_files.random, "r")
-        d.title = Forgery::LoremIpsum.words(rand(4), :random => true)
-        d.description = Forgery::LoremIpsum.sentences(rand(4), :random => true)
+        d.title = Forgery::LoremIpsum.words(1+rand(4), :random => true)
+        d.tag_list = Forgery::LoremIpsum.words(1+rand(4), :random => true).split(' ')
+        d.description = Forgery::LoremIpsum.sentences(1+rand(4), :random => true)
       end
     end
   end
