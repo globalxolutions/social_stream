@@ -67,11 +67,11 @@ en:
     verb:
       follow:
         User:
-          title: "%{subject} added %{contact} as contact."
-          message: "%{name} added you as contact."
+          title: "%{subject} is now following %{contact}."
+          message: "%{name} is now following you."
         Group:
-          title: "%{subject} added %{contact} as contact."
-          message: "%{name} added you as contact."
+          title: "%{subject} is now following %{contact}."
+          message: "%{name} is now following you."
       like:
         User:
           title: "%{subject} is a fan of %{contact}."

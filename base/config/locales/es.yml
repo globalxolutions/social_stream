@@ -66,11 +66,11 @@ es:
     verb:
       follow:
         User:
-          title: "%{subject} añadió %{contact} como contacto."
-          message: "%{name} te añadió como contacto."
+          title: "%{subject} está siguiendo a %{contact}."
+          message: "%{name} te está siguiendo."
         Group:
-          title: "%{subject} se unió al grupo %{contact}."
-          message: "%{name} te añadió como contacto."
+          title: "%{subject} está siguiendo a %{contact}."
+          message: "%{name} te está siguiendo."
       like:
         User:
           title: "%{subject} es fan de %{contact}."
