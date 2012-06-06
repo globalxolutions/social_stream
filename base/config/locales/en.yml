@@ -176,7 +176,7 @@ en:
     unfollow: "Unfollow"
   copyright: "2010 Copyright - All rights reserved"
   delete:
-    confirm: Delete %{element}}?
+    confirm: "Delete %{element}}?"
   devise:
     links:
       sign_in: "Sign in"
@@ -327,8 +327,8 @@ en:
     destroy_sure: "Do you want to delete this notification?"
     fan: "%{sender} is now %{whose} fan."
     follow:
-      group: "%{sender} added %{who} as contact."
-      user: "%{sender} added %{who} as contact."
+      group: "%{sender} is now following %{who}"
+      user: "%{sender} is now following %{who}"
     hello: "Hi %{receiver},"
     like:
       group: "%{sender} likes %{whose} %{thing}." 

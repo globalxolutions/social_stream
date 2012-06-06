@@ -326,8 +326,8 @@ es:
     destroy_sure: "¿Borrar notificación?"
     fan: "%{sender} es ahora fan %{whose}."
     follow:
-      group: "%{sender} añadió a %{who} como contacto."
-      user: "%{sender} te añadió como contacto."
+      group: "%{sender} está siguiendo a %{who}."
+      user: "%{sender} te está siguiendo."
     hello: "Hola %{receiver},"
     like:
       group: "A %{sender} le gusta el %{thing} %{whose}." 
