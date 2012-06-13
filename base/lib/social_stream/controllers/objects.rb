@@ -116,7 +116,7 @@ module SocialStream
 
         case params[:scope]
         when "me"
-          { :with => { :author_id => [ current_subject.author_id ] } }
+          { :with => { :author_id => [ current_subject.id ] } }
         when "net"
           { :with => { :author_id => current_subject.following_actor_and_self_ids } }
         when "other"
