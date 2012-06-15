@@ -19,7 +19,6 @@ module SocialStream
   end
 
   module Models
-    autoload :Channeled, 'social_stream/models/channeled'
     autoload :Object,    'social_stream/models/object'
     autoload :Subject,   'social_stream/models/subject'
     autoload :Subtype,   'social_stream/models/subtype'
@@ -79,6 +78,9 @@ module SocialStream
 
   mattr_accessor :relation_model
   @@relation_model = :custom
+
+  mattr_accessor :single_relations
+  @@single_relations = [ :public, :follow, :reject ]
 
   mattr_accessor :resque_access
   @@resque_access = true

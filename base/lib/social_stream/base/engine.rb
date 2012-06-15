@@ -20,10 +20,13 @@ module SocialStream
 
       initializer "social_stream-base.model.supertypes" do
         ActiveSupport.on_load(:active_record) do
-          include SocialStream::Models::Channeled::ActiveRecord
           include SocialStream::Models::Subtype::ActiveRecord
           include SocialStream::Models::Supertype::ActiveRecord
         end
+      end
+
+      initializer "social_stream-base.model.load_single_relations" do
+        SocialStream.single_relations.each{ |r| "Relation::#{ r.to_s.classify }".constantize }
       end
 
       initializer "social_stream-base.controller.helpers" do

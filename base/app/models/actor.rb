@@ -73,16 +73,6 @@ class Actor < ActiveRecord::Base
   has_many :relations,
            :dependent => :destroy
 
-  has_many :authored_channels,
-           :class_name => "Channel",
-           :foreign_key => :author_id,
-           :dependent => :destroy
-
-  has_many :owned_channels,
-           :class_name => "Channel",
-           :foreign_key => :owner_id,
-           :dependent => :destroy
-
   has_many :sent_actions,
            :class_name => "ActivityAction",
            :dependent  => :destroy
@@ -328,11 +318,6 @@ class Actor < ActiveRecord::Base
     ties_to(subject).with_permissions(action, object).any?
   end
 
-  # The {Channel} of this {Actor} to self (totally close!)
-  def self_channel
-    Channel.find_or_create_by_author_id_and_user_author_id_and_owner_id id, id, id
-  end
-
   # Return the {ActivityAction} model to an {ActivityObject}
   def action_to(activity_object)
     sent_actions.received_by(activity_object).first
@@ -391,12 +376,26 @@ class Actor < ActiveRecord::Base
         any?
   end
 
-  # An {Activity} can be shared with multiple {audicences Audience}, which corresponds to a {Relation}.
+  # The default {Relation Relations} for sharing an {Activity} owned
+  # by this {Actor}
+  def activity_relations
+    SocialStream.relation_model == :custom ?
+      relations.
+        allowing('read', 'activity') :
+      [ Relation::Public.instance ]
+  end
+
+  # The ids of the default {Relation Relations} for sharing an {Activity}
+  # owned by this {Actor}
+  def activity_relation_ids
+    activity_relations.map(&:id)
+  end
+
+  # This method returns all the {relations Relation} that subject can choose to broadcast an Activity in this {Actor}'s wall
   #
-  # This method returns all the {relations Relation} that this actor can use to broadcast an Activity
+  # See {Activity} on how they can be shared with multiple {audicences Audience}, which corresponds to a {Relation}.
   #
-  #
-  def activity_relations(subject, options = {})
+  def activity_relations_for(subject, options = {})
     if Actor.normalize(subject) == self
       return relation_customs + Array.wrap(Relation::Public.instance)
     else
@@ -404,9 +403,9 @@ class Actor < ActiveRecord::Base
     end
   end
 
-  # Are there any activity_relations present?
-  def activity_relations?(*args)
-    activity_relations(*args).any?
+  # Are {#activity_relations} available for subject?
+  def activity_relations_for?(subject, options = {})
+    activity_relations(subject, options).any?
   end
 
   # Is this {Actor} allowed to create a comment on activity?
@@ -459,37 +458,30 @@ class Actor < ActiveRecord::Base
   #             the wall for members of the group.
   #             
   def wall(type, options = {})
-    args = {}
+    options[:for] = self if type == :home
 
-    args[:type]  = type
-    args[:owner] = self
-    # Preserve this options
-    [ :for, :object_type ].each do |opt|
-      args[opt]   = options[opt]
-    end
+    wall =
+      Activity.
+        select("DISTINCT activities.*").
+        roots.
+        includes(:author, :user_author, :owner, :activity_objects, :activity_verb, :relations)
 
-    if type == :home
-      args[:followed] = Actor.followed_by(self).map(&:id)
-    end
-
-    # TODO: this is not scalling for sure. We must use a fact table in the future
-    args[:relation_ids] =
+    actor_ids =
       case type
       when :home
-        # The relations from followings that can be read
-        Relation.allow(self, 'read', 'activity').map(&:id)
+        following_actor_and_self_ids
       when :profile
-        # FIXME: options[:relation]
-        #
-        # The relations that can be read by options[:for]
-        options[:for].present? ?
-          Relation.allow(options[:for], 'read', 'activity').map(&:id) :
-          []
+        id
       else
         raise "Unknown type of wall: #{ type }"
       end
 
-    Activity.wall args
+    wall = wall.authored_or_owned_by(actor_ids)
+
+    # Authentication
+    wall = wall.shared_with(options[:for])
+
+    wall = wall.order("created_at desc")
   end
  
   def logo
@@ -507,7 +499,7 @@ class Actor < ActiveRecord::Base
   end
   
   def liked_by(subject) #:nodoc:
-    likes.joins(:channel).merge(Channel.subject_authored_by(subject))
+    likes.authored_by(subject)
   end
   
   # Does subject like this {Actor}?
@@ -517,14 +509,11 @@ class Actor < ActiveRecord::Base
   
   # Build a new activity where subject like this
   def new_like(subject, user)
-    channel =
-      Channel.
-        find_or_create_by_author_id_and_user_author_id_and_owner_id Actor.normalize_id(subject),
-                                                                    Actor.normalize_id(user),
-                                                                    id
-    a = Activity.new :verb => "like",
-                     :channel => channel,
-                     :relation_ids => Array(Relation::Public.instance.id)
+    a = Activity.new :verb           => "like",
+                     :author_id      => Actor.normalize_id(subject),
+                     :user_author_id => Actor.normalize_id(user),
+                     :owner_id       => id,
+                     :relation_ids   => Array(Relation::Public.instance.id)
     
     a.activity_objects << activity_object           
                     
