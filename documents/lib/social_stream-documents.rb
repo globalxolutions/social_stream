@@ -10,7 +10,7 @@ module SocialStream
   module Documents
     # Add :document to SocialStream.objects and SocialStream.activity_forms by default
     # It can be configured by users at application's config/initializers/social_stream.rb
-    [ :picture, :video, :audio, :swf, :office_document, :document].each do |o|
+    [ :picture, :video, :audio, :swf, :officedoc, :document].each do |o|
     SocialStream.quick_search_models.push(o) unless SocialStream.quick_search_models.include?(o)
     SocialStream.extended_search_models.push(o) unless SocialStream.extended_search_models.include?(o)
     end

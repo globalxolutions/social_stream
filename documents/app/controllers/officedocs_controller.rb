@@ -1,0 +1,2 @@
+class OfficedocController < DocumentsController
+end

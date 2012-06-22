@@ -1,4 +1,4 @@
-class OfficeDocument < Document  
+class Officedoc < Document  
   has_attached_file :file, 
                     :url => '/:class/:id.:extension',
                     :path => ':rails_root/documents/:class/:id_partition/:filename.:extension'

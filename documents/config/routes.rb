@@ -3,7 +3,7 @@ Rails.application.routes.draw do
   resources :audios
   resources :videos
   resources :swfs
-  resources :office_documents
+  resources :officedocs
 
   resources :documents do
     get "search",   :on => :collection
@@ -17,7 +17,7 @@ Rails.application.routes.draw do
       resources :audios
       resources :videos
       resources :swfs
-      resources :office_documents
+      resources :officedocs
 
       resources :documents do
         get "search",   :on => :collection

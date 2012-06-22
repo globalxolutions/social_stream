@@ -40,7 +40,7 @@ class Document < ActiveRecord::Base
          !(doc.file_content_type =~ /^application.*vnd.ms-excel/).nil? or
          !(doc.file_content_type =~ /^application.*vnd.ms-word/).nil? or
          !(doc.file_content_type =~ /^application.*vnd.ms-powerpoint/).nil?
-        return OfficeDocument.new *args
+        return Officedoc.new *args
       end
 
       if !(doc.file_content_type =~ /^.*shockwave-flash.*/).nil?
