@@ -1,2 +1,2 @@
-class OfficedocController < DocumentsController
+class OfficedocsController < DocumentsController
 end
