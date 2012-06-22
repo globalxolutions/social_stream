@@ -20,6 +20,7 @@ class Document < ActiveRecord::Base
     activity_object_index
 
     indexes file_file_name, :as => :file_name
+    indexes type, :as => :document_type
   end
   
   class << self 
@@ -31,6 +32,15 @@ class Document < ActiveRecord::Base
       
       if(doc.file_content_type.nil?)
         return doc
+      end
+
+      if !(doc.file_content_type =~ /^application.*vnd.oasis.*/).nil? or
+         !(doc.file_content_type =~ /^application.*vnd.openxmlformats-officedocument.*/).nil? or
+         !(doc.file_content_type =~ /^application.*pdf/).nil? or
+         !(doc.file_content_type =~ /^application.*vnd.ms-excel/).nil? or
+         !(doc.file_content_type =~ /^application.*vnd.ms-word/).nil? or
+         !(doc.file_content_type =~ /^application.*vnd.ms-powerpoint/).nil?
+        return OfficeDocument.new *args
       end
 
       if !(doc.file_content_type =~ /^.*shockwave-flash.*/).nil?
