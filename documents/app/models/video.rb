@@ -8,8 +8,8 @@ class Video < Document
                       :flv  => {:format => 'flv'},
                       :mp4  => {:format => 'mp4'},
                       :poster  => {:format => 'png', :time => 5},
-                      :thumb48sq  => {:geometry => "48x48" , :format => 'png', :time => 5},
-                      :thumbwall => {:geometry => "130x97#", :format => 'png', :time => 5}
+                      :timelinesq  => {:geometry => "75x75#" , :format => 'png', :time => 5},
+                      :timeline => {:geometry => "100x75#", :format => 'png', :time => 5}
                     },
                     :processors => [:ffmpeg]
                     
@@ -23,7 +23,14 @@ class Video < Document
                       
   # Thumbnail file
   def thumb(size, helper)
-      "#{ size.to_s }/video.png"
+    case size
+      when 75
+        helper.picture_path self, :format => format, :style => 'timelinesq'
+      when 100
+        helper.picture_path self, :format => format, :style => 'timeline'
+      when 500
+        helper.picture_path self, :format => format, :style => 'poster'
+    end
   end
 
  # JSON, special edition for video files
