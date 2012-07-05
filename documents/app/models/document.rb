@@ -37,9 +37,9 @@ class Document < ActiveRecord::Base
       if !(doc.file_content_type =~ /^application.*vnd.oasis.*/).nil? or
          !(doc.file_content_type =~ /^application.*vnd.openxmlformats-officedocument.*/).nil? or
          !(doc.file_content_type =~ /^application.*pdf/).nil? or
-         !(doc.file_content_type =~ /^application.*vnd.ms-excel/).nil? or
-         !(doc.file_content_type =~ /^application.*vnd.ms-word/).nil? or
-         !(doc.file_content_type =~ /^application.*vnd.ms-powerpoint/).nil?
+         !(doc.file_content_type =~ /^application.*ms.?excel/).nil? or
+         !(doc.file_content_type =~ /^application.*ms.?word/).nil? or
+         !(doc.file_content_type =~ /^application.*ms.?powerpoint/).nil?
         return Officedoc.new *args
       end
 
