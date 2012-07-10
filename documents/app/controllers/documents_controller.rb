@@ -1,6 +1,7 @@
 class DocumentsController < ApplicationController
   include SocialStream::Controllers::Objects
 
+  before_filter :authenticate_user!, :only => [:new, :edit, :create, :update]
   before_filter :profile_subject!, :only => :index
 
   def index
