@@ -43,6 +43,16 @@ es:
     title:
       one: "Fichero"
       other: "Ficheros"
+  officedoc:
+    confirm_delete: "¿Borrar documento?"
+    title: "Documentos"
+    mine: "Mis documentos"
+    name: "documento"
+    not_mine: "Documents"
+    one: "un documento"
+    title:
+      one: "Documento"
+      other: "Documentos"
   picture:
     confirm_delete: "¿Borrar imagen?"
     mine: "Mis imágenes"
@@ -64,6 +74,16 @@ es:
     title: "Recursos"
     mine: "Mis recursos"
     not_mine: "Recursos"
+  swf:
+    confirm_delete: "¿Borrar swf?"
+    title: "SWF"
+    mine: "My SWFs"
+    name: "swf"
+    not_mine: "SWFs"
+    one: "un swf"
+    title:
+      one: "SWF"
+      other: "SWFs"
   video:
     confirm_delete: "¿Borrar vídeo?"
     mine: "Mis vídeos"  

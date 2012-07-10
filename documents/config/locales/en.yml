@@ -44,6 +44,16 @@ en:
     title:
       one: "File"
       other: "Files"
+  officedoc:
+    confirm_delete: "Delete document?"
+    title: "Office Documents"
+    mine: "My documents"
+    name: "document"
+    not_mine: "Documents"
+    one: "a document"
+    title:
+      one: "Document"
+      other: "Documents"
   picture:
     confirm_delete: "Delete picture?"
     mine: "My pictures"  
@@ -65,6 +75,16 @@ en:
     title: "Resources"
     mine: "My resources"
     not_mine: "Resources"
+  swf:
+    confirm_delete: "Delete swf?"
+    title: "SWF"
+    mine: "My SWFs"
+    name: "swf"
+    not_mine: "SWFs"
+    one: "a swf"
+    title:
+      one: "SWF"
+      other: "SWFs"
   video:
     confirm_delete: "Delete video?"
     mine: "My videos"  
