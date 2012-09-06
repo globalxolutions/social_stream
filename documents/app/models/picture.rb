@@ -19,6 +19,8 @@ class Picture < Document
         helper.picture_path self, :format => format, :style => 'timeline'
       when 500
         helper.picture_path self, :format => format, :style => 'preview'
+      when 1000
+        helper.picture_path self, :format => format, :style => 'original'
     end
   end
       
