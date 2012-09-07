@@ -34,7 +34,7 @@ Gem::Specification.new do |s|
   # jQuery
   s.add_runtime_dependency('jquery-rails', '>= 1.0.9')
   # Authorization
-  s.add_runtime_dependency('cancan', '~> 1.6.4')
+  s.add_runtime_dependency('cancan', '1.6.7')
   # Pagination
   s.add_runtime_dependency('kaminari', '~> 0.13.0')
   # OAuth client
@@ -46,7 +46,7 @@ Gem::Specification.new do |s|
   # Tagging
   s.add_runtime_dependency('acts-as-taggable-on','~> 2.2.2')
   # HTML Forms
-  s.add_runtime_dependency('formtastic','~> 1.2.3')
+  s.add_runtime_dependency('formtastic','>= 1.2.3')
   # Background jobs
   s.add_runtime_dependency('resque','~> 1.20.0')
   # Modernizr.js javascript library

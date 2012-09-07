@@ -1,0 +1,26 @@
+require 'bundler/gem_tasks'
+
+require 'rdoc/task'
+
+require 'rspec/core'
+require 'rspec/core/rake_task'
+
+RSpec::Core::RakeTask.new(:spec)
+
+task :default => :spec
+
+Rake::RDocTask.new(:rdoc) do |rdoc|
+  rdoc.rdoc_dir = 'rdoc'
+  rdoc.title    = 'SocialStream::Ostatus'
+  rdoc.rdoc_files.include('README*')
+  rdoc.rdoc_files.include('lib/**/*.rb')
+end
+
+Bundler::GemHelper.install_tasks
+
+# Modify this gem's tags
+class Bundler::GemHelper
+  def version_tag
+    "ostatus#{version}"
+  end
+end

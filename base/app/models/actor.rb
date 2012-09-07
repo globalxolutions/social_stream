@@ -5,7 +5,7 @@
 # type of a {Tie} is a {Relation}. Each actor can define and customize their relations own
 # {Relation Relations}.
 #
-# Every {Actor} has an Avatar, a {Profile} with personal o group information, contact data, etc.
+# Every {Actor} has an Avatar, a {Profile} with personal or group information, contact data, etc.
 #
 # {Actor Actors} perform {ActivityAction actions} (like, suscribe, etc.) on
 # {ActivityObject activity objects} ({Post posts}, {Comment commments}, pictures, events..)
@@ -81,6 +81,19 @@ class Actor < ActiveRecord::Base
            :source  => :activity_object,
            :conditions => { 'activity_actions.follow' => true }
 
+  has_many :authored_activities,
+           :class_name  => "Activity",
+           :foreign_key => :author_id,
+           :dependent   => :destroy
+  has_many :user_authored_activities,
+           :class_name  => "Activity",
+           :foreign_key => :user_author_id,
+           :dependent   => :destroy
+  has_many :owned_activities,
+           :class_name  => "Activity",
+           :foreign_key => :owner_id,
+           :dependent   => :destroy
+
   scope :alphabetic, order('actors.name')
 
   scope :letter, lambda { |param|
@@ -123,14 +136,6 @@ class Actor < ActiveRecord::Base
   after_create :create_initial_relations
   
   after_create :save_or_create_profile
-  
-  class << self
-    def find_by_webfinger!(link)
-      link =~ /(acct:)?(.*)@/
-
-      find_by_slug! $2
-    end
-  end
   
   #Returning the email address of the model if an email should be sent for this object (Message or Notification).
   #If the actor is a Group and has no email address, an array with the email of the highest rank members will be
