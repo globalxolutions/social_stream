@@ -21,6 +21,7 @@ class DocumentsController < ApplicationController
   def create
     super do |format|
       format.json { render :json => resource }
+      format.js { render }
       format.all {redirect_to document_path(resource) || home_path}
     end
   end
