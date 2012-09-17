@@ -1,4 +1,15 @@
 SocialStream::Ostatus.setup do |config|
-  config.hub = 'http://localhost:4567/'
-  config.node_base_url = 'http://localhost:3000'
+  # Default to the PuSH reference Hub server
+  #
+  # config.hub = 'http://pubsubhubbub.appspot.com'
+
+  # The host where the hub should take the activity feed from
+  #
+  # Local subjects will publish their public activities there
+  config.activity_feed_host = 'localhost:3000'
+
+  # The host where the PuSH should send the callbacks to
+  #
+  # Remote subjects get their local activities updates with the PuSH callback
+  config.pshb_host = 'localhost:3000'
 end
