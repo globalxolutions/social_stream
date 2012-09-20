@@ -5,13 +5,15 @@ class RemoteSubjectsController < ApplicationController
     @remote_subject =
       RemoteSubject.find_or_create_using_webfinger_id(params[:q])
       
-    respond_to do |format|
-      format.html
-    end
+    redirect_to @remote_subject
   end
 
   def show
     @remote_subject =
       RemoteSubject.find_by_slug!(params[:id])
+
+    if params[:refresh]
+      @remote_subject.refresh_webfinger!
+    end
   end
 end

@@ -46,6 +46,18 @@ class RemoteSubject < ActiveRecord::Base
     webfinger_info[:updates_from]
   end
 
+  # URL of the Salmon endpoint for this {RemoteSubject}
+  def salmon_url
+    webfinger_info[:salmon]
+  end
+
+  # Fetch the webfinger again
+  def refresh_webfinger!
+    fill_webfinger_info
+
+    save!
+  end
+
   private
 
   def splitted_webfinger_id
@@ -54,13 +66,20 @@ class RemoteSubject < ActiveRecord::Base
   end
 
   def fill_information
-    self.webfinger_info = build_webfinger_info
+    fill_webfinger_info
+
     self.name = webfinger_id
+  end
+
+  def fill_webfinger_info
+    self.webfinger_info = build_webfinger_info
+    self.rsa_key = finger.magic_key
   end
 
   def build_webfinger_info
     {
-      :updates_from => finger.links[:updates_from]
+      updates_from: finger.links[:updates_from],
+      salmon:       finger.links[:salmon]
     }
   end
 
@@ -70,7 +89,13 @@ class RemoteSubject < ActiveRecord::Base
   end
 
   def fetch_finger
-    Proudhon::Finger.fetch webfinger_id
+    finger = 
+      Proudhon::Finger.fetch webfinger_id
+
+    # FIXME custom error
+    raise ::ActiveRecord::RecordNotFound if finger.blank?
+
+    finger
   end
 
   def subscribe_to_public_feed
@@ -78,7 +103,7 @@ class RemoteSubject < ActiveRecord::Base
 
     atom = Proudhon::Atom.from_uri(public_feed_url)
 
-    atom.subscribe(pshb_callback_url(:host => SocialStream::Ostatus.pshb_host))
+    atom.subscribe(pshb_url(:host => SocialStream::Ostatus.pshb_host))
   end
 
   def unsubscribe_to_public_feed
@@ -86,6 +111,6 @@ class RemoteSubject < ActiveRecord::Base
 
     atom = Proudhon::Atom.from_uri(public_feed_url)
 
-    atom.unsubscribe(pshb_callback_url(:host => SocialStream::Ostatus.pshb_host))
+    atom.unsubscribe(pshb_url(:host => SocialStream::Ostatus.pshb_host))
   end
 end

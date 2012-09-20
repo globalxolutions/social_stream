@@ -1,7 +1,7 @@
 module SocialStream
   module Ostatus
     module ActivityStreams
-      # Parses the body from a {PshbController#callback} and dispatches
+      # Parses the body from a {PshbController#index} and dispatches
       # entries for parsing to {#record_from_entry!}
       def from_pshb_callback(body)
         atom = Proudhon::Atom.parse body
@@ -11,20 +11,22 @@ module SocialStream
         end
       end
 
+      # Parses an activity form a PuSH or Salmon notification
       # Decides what action should be taken from an ActivityStreams entry
-      def activity_from_entry! entry
+      def activity_from_entry! entry, receiver = nil
         case entry.verb
-        when :post
-          r = record_from_entry! entry
-          r.post_activity
+        when "follow"
+          Tie.from_entry! entry, receiver
         else
-          raise "Unsupported verb #{ entry.verb }"
+          # :post is the default verb
+          r = record_from_entry! entry, receiver
+          r.post_activity
         end
       end
 
       # Redirects parsing to the suitable SocialStream's model
-      def record_from_entry! entry
-        model!(entry.objtype).from_entry! entry
+      def record_from_entry! entry, receiver
+        model!(entry.objtype).from_entry! entry, receiver
       end
 
       # Finds or creates a {RemoteSubject} from an ActivityStreams entry
@@ -37,6 +39,24 @@ module SocialStream
         end
 
         RemoteSubject.find_or_create_by_webfinger_id webfinger_id
+      end
+
+      # Parses the body from a {Salmon#index} and receiving actor
+      def from_salmon_callback(body, receiver)
+        salmon = Proudhon::Salmon.new body
+
+        validate_salmon salmon
+
+        activity_from_entry! salmon.to_entry, receiver
+      end
+
+      def validate_salmon salmon
+        remote_subject = RemoteSubject.find_or_create_by_webfinger_id(salmon.to_entry.author.uri)
+        key = remote_subject.rsa_key
+
+        unless salmon.verify(key)
+          raise "Invalid salmon: #{ salmon }"
+        end
       end
     end
   end
