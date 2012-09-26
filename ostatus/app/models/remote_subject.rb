@@ -16,18 +16,35 @@ class RemoteSubject < ActiveRecord::Base
 
   after_create  :subscribe_to_public_feed
   after_destroy :unsubscribe_to_public_feed
+
+  scope :webfinger_alias, lambda { |uri|
+    where('webfinger_info LIKE ?', "%aliases%#{ uri }%")
+  }
   
   #validates_format_of :webfinger_slug, :with => Devise.email_regexp, :allow_blank => true
   
   class << self
-    def find_or_create_using_webfinger_id(id)
-      id.gsub!('acct:', '')
+    def find_or_create_by_webfinger_uri!(uri)
+      if uri =~ /^https?:\/\//
+        records = webfinger_alias(uri)
 
-      subject = RemoteSubject.find_by_webfinger_id(id)
+        # SQL scope is not reliable
+        if records.present?
+          return records.find{ |r| r.webfinger_aliases.include?(uri) }
+        end
 
-      return subject if subject.present?
+        # TODO: create by http uri?
 
-      create! :webfinger_id => id
+        raise ::ActiveRecord::RecordNotFound
+      end
+
+      id = uri.dup
+
+      if id =~ /^acct:/
+        id.gsub!('acct:', '')
+      end
+
+      find_or_create_by_webfinger_id!(id)
     end
   end
   
@@ -49,6 +66,11 @@ class RemoteSubject < ActiveRecord::Base
   # URL of the Salmon endpoint for this {RemoteSubject}
   def salmon_url
     webfinger_info[:salmon]
+  end
+
+  # Webfinger Alias
+  def webfinger_aliases
+    webfinger_info[:aliases]
   end
 
   # Fetch the webfinger again
@@ -79,7 +101,8 @@ class RemoteSubject < ActiveRecord::Base
   def build_webfinger_info
     {
       updates_from: finger.links[:updates_from],
-      salmon:       finger.links[:salmon]
+      salmon:       finger.links[:salmon],
+      aliases:      finger.alias
     }
   end
 
